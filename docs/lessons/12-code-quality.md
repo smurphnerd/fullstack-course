@@ -131,12 +131,14 @@ useEffect(() => {
 
 ## Code Task: Practice Type Checking
 
+> **Note:** Make sure you've completed Lesson 11 first - you need the todos page implemented.
+
 ### Step 1: Introduce a Type Error
 
-Open `src/app/todos/page.tsx` and add this intentional error:
+Open `src/app/todos/page.tsx` and add this intentional error inside any function:
 
 ```typescript
-// Find the TodoItem function and add this line
+// Add this line anywhere in a component
 const broken: string = 123; // Type error!
 ```
 

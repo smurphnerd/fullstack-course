@@ -74,9 +74,9 @@ This creates hooks and methods for the client:
 - `authClient.signOut()` - Log out
 - `authClient.useSession()` - Get current session
 
-## The Signup Flow
+## Code Task: Implement the Signup Page
 
-Open `src/app/(auth)/signup/page.tsx`:
+Open `src/app/(auth)/signup/page.tsx`. It's currently a stub. We'll implement it in Lesson 9, but here's the key auth logic:
 
 ```typescript
 const onSubmit = async (data) => {
@@ -101,9 +101,9 @@ After signup:
 2. Verification email sent (to Mailhog locally)
 3. User must click link to verify
 
-## The Login Flow
+## Code Task: Implement the Login Page
 
-Open `src/app/(auth)/login/page.tsx`:
+Open `src/app/(auth)/login/page.tsx`. It's also a stub. The key auth logic:
 
 ```typescript
 const onSubmit = async (data) => {
@@ -121,23 +121,67 @@ const onSubmit = async (data) => {
 };
 ```
 
-## Using Session Data
+> **Note:** We'll implement the full forms in Lesson 9. For now, understand the auth flow.
 
-In components, use the `useSession` hook:
+## Code Task: Implement the Header
+
+Open `src/components/header.tsx` and implement the auth UI:
 
 ```typescript
-function Header() {
+"use client";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/authClient";
+
+export function Header() {
   const { data: session, isPending } = authClient.useSession();
 
-  if (isPending) return <Loading />;
-
-  if (session) {
-    return <span>Hello, {session.user.email}</span>;
-  }
-
-  return <Link href="/login">Login</Link>;
+  return (
+    <header className="border-b">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <Link href="/" className="text-xl font-bold">
+          Todo App
+        </Link>
+        <nav className="flex items-center gap-4">
+          {isPending ? (
+            <span className="text-muted-foreground">Loading...</span>
+          ) : session ? (
+            <>
+              <span className="text-sm text-muted-foreground">
+                {session.user.email}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => authClient.signOut()}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost" size="sm">Login</Button>
+              </Link>
+              <Link href="/signup">
+                <Button size="sm">Sign Up</Button>
+              </Link>
+            </>
+          )}
+        </nav>
+      </div>
+    </header>
+  );
 }
 ```
+
+Then update `src/app/layout.tsx` to use the Header:
+
+1. Uncomment the import: `import { Header } from "@/components/header";`
+2. Add `<Header />` inside the body
+
+> **Stuck?** Check `src_solution/components/header.tsx`
 
 ## Protected Procedures
 
@@ -155,46 +199,16 @@ export const todosRouter = {
 
 If not logged in, oRPC returns `UNAUTHORIZED` automatically.
 
-## Code Task: Test the Auth Flow
+## Testing the Auth Flow
 
-### Step 1: Start the Dev Server
+> **Note:** You'll test the full auth flow after implementing the forms in Lesson 9. For now:
 
-```bash
-pnpm dev
-```
+1. Implement the Header as shown above
+2. Update layout.tsx to use the Header
+3. Start the dev server: `pnpm dev`
+4. Visit the home page and verify the Header shows "Login" and "Sign Up" buttons
 
-### Step 2: Open Mailhog
-
-Go to [http://localhost:8025](http://localhost:8025) in a new tab.
-
-### Step 3: Sign Up
-
-1. Go to [http://localhost:3000/signup](http://localhost:3000/signup)
-2. Fill in the form:
-   - Name: Test User
-   - Email: test@example.com
-   - Password: password123
-   - Confirm Password: password123
-3. Click "Sign Up"
-
-### Step 4: Verify Email
-
-1. Check Mailhog - you should see a verification email
-2. Click the verification link in the email
-3. You should see a success message
-
-### Step 5: Log In
-
-1. Go to [http://localhost:3000/login](http://localhost:3000/login)
-2. Enter your email and password
-3. Click "Login"
-4. You should be redirected to `/todos`
-
-### Step 6: Check Session
-
-Look at the header - you should see:
-- Your email address
-- A "Logout" button
+The full testing flow will be in Lesson 9 after implementing the signup/login forms.
 
 ## Database Tables
 
@@ -209,11 +223,10 @@ Better Auth uses these tables (already in the schema):
 
 ## Verify
 
-- [ ] Signup creates a user and sends verification email
-- [ ] Verification email appears in Mailhog
-- [ ] Can verify email and log in
-- [ ] Session persists (refresh page, still logged in)
-- [ ] Logout works
+- [ ] You understand how Better Auth handles signup/login
+- [ ] Header component is implemented with auth state
+- [ ] Header shows in the layout
+- [ ] You understand what `authClient.useSession()` returns
 
 ## Common Issues
 

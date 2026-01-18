@@ -46,7 +46,7 @@ Awilix is a dependency injection container for Node.js. It automatically creates
 
 ## The Container
 
-Open `src/server/initialization.ts`:
+Open `src/server/initialization.ts`. You'll see the current container setup:
 
 ```typescript
 import { createContainer, asClass, asFunction, asValue } from "awilix";
@@ -55,7 +55,7 @@ export type Cradle = {
   logger: Logger;
   database: Drizzle;
   auth: Auth;
-  todosService: TodosService;
+  // TODO: Add todosService to the Cradle type
 };
 
 export const container = createContainer<Cradle>({
@@ -65,14 +65,14 @@ export const container = createContainer<Cradle>({
 
 ### The Cradle Type
 
-`Cradle` defines everything available in the container:
+`Cradle` defines everything available in the container. Currently it has:
 
 ```typescript
 export type Cradle = {
   logger: Logger;           // Logging
   database: Drizzle;        // Database connection
   auth: Auth;               // Authentication
-  todosService: TodosService; // Our service
+  // We'll add todosService here later
 };
 ```
 
@@ -173,21 +173,98 @@ class SomeService {
 }
 ```
 
-## Code Task: Trace the Flow
+## Code Task: Create the TodosService
 
-Follow this path through the code:
+Now let's create the TodosService and register it.
 
-1. Open `src/server/endpoints/todosRouter.ts`
-2. Find where `todosService` is used
-3. Open `src/server/services/TodosService.ts`
-4. See how it uses `this.deps.database`
-5. Open `src/server/initialization.ts`
-6. See how `todosService` is registered
+### Step 1: Create the Service
 
-This is the full dependency chain:
+Open `src/server/services/TodosService.ts`. It's currently a stub. Replace it with:
+
+```typescript
+import { eq, desc } from "drizzle-orm";
+import type { Cradle } from "@/server/initialization";
+import { todos } from "@/server/database/schema";
+import type { CreateTodoDto, UpdateTodoDto } from "@/definitions/definitions";
+
+export class TodosService {
+  constructor(private deps: Cradle) {}
+
+  async list(userId: string) {
+    return await this.deps.database.query.todos.findMany({
+      where: eq(todos.userId, userId),
+      orderBy: [desc(todos.createdAt)],
+    });
+  }
+
+  async create(userId: string, data: CreateTodoDto) {
+    const [newTodo] = await this.deps.database
+      .insert(todos)
+      .values({ ...data, userId })
+      .returning();
+    return newTodo;
+  }
+
+  async toggle(userId: string, id: string) {
+    const existing = await this.deps.database.query.todos.findFirst({
+      where: eq(todos.id, id),
+    });
+    if (!existing || existing.userId !== userId) {
+      throw new Error("Todo not found");
+    }
+    const [updated] = await this.deps.database
+      .update(todos)
+      .set({ completed: !existing.completed })
+      .where(eq(todos.id, id))
+      .returning();
+    return updated;
+  }
+
+  async delete(userId: string, id: string) {
+    await this.deps.database
+      .delete(todos)
+      .where(eq(todos.id, id));
+  }
+}
+```
+
+### Step 2: Add to Cradle Type
+
+Open `src/server/initialization.ts` and:
+
+1. Uncomment the import at the top:
+   ```typescript
+   import { TodosService } from "@/server/services/TodosService";
+   ```
+
+2. Add `todosService` to the Cradle type:
+   ```typescript
+   export type Cradle = {
+     logger: Logger;
+     database: Drizzle;
+     auth: Auth;
+     todosService: TodosService;  // Add this line
+   };
+   ```
+
+### Step 3: Register the Service
+
+In the same file, uncomment the registration in `container.register({...})`:
+
+```typescript
+todosService: asClass(TodosService).singleton(),
+```
+
+> **Stuck?** Check `src_solution/server/services/TodosService.ts` and `src_solution/server/initialization.ts`
+
+### Understanding the Flow
+
+Now you have the dependency chain:
 ```
 Router → Service → Database
 ```
+
+The router calls `context.cradle.todosService`, which uses `this.deps.database`.
 
 ## Adding a New Service
 

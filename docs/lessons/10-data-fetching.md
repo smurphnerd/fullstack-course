@@ -214,14 +214,16 @@ queryClient.invalidateQueries({ queryKey: ["todos", "list"] });
 queryClient.invalidateQueries({ queryKey: ["todos"] });
 ```
 
-## Code Task: Trace the Data Flow
+## Code Task: Understanding the Pattern
 
-Open `src/app/todos/page.tsx`:
+The todos page (`src/app/todos/page.tsx`) is currently a stub. In Lesson 11, you'll implement it using this pattern:
 
-1. Find the `<ErrorBoundary>` and `<Suspense>` boundaries
-2. Find where `useSuspenseQuery` is called
-3. Find where mutations invalidate the query
-4. Trace how adding a todo refreshes the list
+1. Wrap the page content with `<ErrorBoundary>` and `<Suspense>`
+2. Use `useSuspenseQuery` to fetch todos
+3. Use `useMutation` for create/toggle/delete operations
+4. Call `queryClient.invalidateQueries()` after each mutation
+
+For now, review the concepts and understand how these pieces fit together.
 
 ## Nested Suspense
 

@@ -135,13 +135,123 @@ The router:
 - Delegates to the service
 - Returns typed output
 
-## Layer 4: Client Component
+## Code Task: Implement the Todos Page
 
-Open `src/app/todos/page.tsx`:
+Open `src/app/todos/page.tsx` and replace the stub with the full implementation:
 
-### Fetching Todos
+```tsx
+"use client";
 
-```typescript
+import { Suspense } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useORPC } from "@/lib/orpc.client";
+import { authClient } from "@/lib/authClient";
+import { CreateTodoDto } from "@/definitions/definitions";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+
+export default function TodosPage() {
+  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
+
+  // Redirect to login if not authenticated
+  if (!isPending && !session) {
+    router.push("/login");
+    return null;
+  }
+
+  if (isPending) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl text-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle>My Todos</CardTitle>
+          <CardDescription>Manage your tasks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ErrorBoundary>
+            <AddTodoForm />
+            <Suspense fallback={<p className="text-center py-4">Loading todos...</p>}>
+              <TodosList />
+            </Suspense>
+          </ErrorBoundary>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function AddTodoForm() {
+  const orpc = useORPC();
+  const queryClient = useQueryClient();
+
+  const form = useForm({
+    resolver: zodResolver(CreateTodoDto),
+    defaultValues: { title: "" },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (data: { title: string }) =>
+      orpc.todos.create.call({ input: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      form.reset();
+    },
+  });
+
+  const onSubmit = (data: { title: string }) => {
+    mutation.mutate(data);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2 mb-6">
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem className="flex-1">
+              <FormControl>
+                <Input placeholder="What needs to be done?" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "Adding..." : "Add"}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
 function TodosList() {
   const orpc = useORPC();
 
@@ -149,39 +259,32 @@ function TodosList() {
     orpc.todos.list.queryOptions({ input: undefined })
   );
 
+  if (todos.length === 0) {
+    return (
+      <p className="text-center text-muted-foreground py-8">
+        No todos yet. Add one above!
+      </p>
+    );
+  }
+
   return (
-    <div>
-      {todos.map(todo => (
+    <ul className="space-y-2">
+      {todos.map((todo) => (
         <TodoItem key={todo.id} {...todo} />
       ))}
-    </div>
+    </ul>
   );
 }
-```
 
-### Creating Todos
-
-```typescript
-function AddTodoForm() {
-  const orpc = useORPC();
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: (data) => orpc.todos.create.call({ input: data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-      form.reset();
-    },
-  });
-
-  // Form submission calls mutation.mutate()
-}
-```
-
-### Toggling and Deleting
-
-```typescript
-function TodoItem({ id, title, completed }) {
+function TodoItem({
+  id,
+  title,
+  completed,
+}: {
+  id: string;
+  title: string;
+  completed: boolean;
+}) {
   const orpc = useORPC();
   const queryClient = useQueryClient();
 
@@ -196,17 +299,33 @@ function TodoItem({ id, title, completed }) {
   });
 
   return (
-    <div>
+    <li className="flex items-center gap-3 p-3 border rounded-lg">
       <Checkbox
         checked={completed}
-        onChange={() => toggleMutation.mutate()}
+        onCheckedChange={() => toggleMutation.mutate()}
+        disabled={toggleMutation.isPending}
       />
-      <span className={completed ? "line-through" : ""}>{title}</span>
-      <Button onClick={() => deleteMutation.mutate()}>Delete</Button>
-    </div>
+      <span className={`flex-1 ${completed ? "line-through text-muted-foreground" : ""}`}>
+        {title}
+      </span>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => deleteMutation.mutate()}
+        disabled={deleteMutation.isPending}
+      >
+        {deleteMutation.isPending ? "..." : "Delete"}
+      </Button>
+    </li>
   );
 }
 ```
+
+> **Stuck?** Check `src_solution/app/todos/page.tsx`
+
+## Understanding the Code
+
+### Page Structure
 
 ## Data Flow Diagram
 
@@ -236,15 +355,25 @@ useSuspenseQuery refetches
 UI updates with new todo
 ```
 
-## Code Task: Trace a Complete Operation
+## Code Task: Test the Complete App
 
-Pick one operation (create, toggle, or delete) and trace it:
+Now that everything is implemented, test the full flow:
 
-1. **Start in the UI** - Find the button/checkbox that triggers it
-2. **Find the mutation** - How is `useMutation` configured?
-3. **Find the router** - Which procedure handles it?
-4. **Find the service** - What database operation runs?
-5. **Back to UI** - How does `invalidateQueries` update the list?
+1. Make sure Docker is running: `docker compose up -d`
+2. Push the schema: `pnpm db:push`
+3. Start the dev server: `pnpm dev`
+4. Sign up, verify email (in Mailhog), and log in
+5. Add some todos
+6. Toggle completion
+7. Delete a todo
+
+Trace what happens when you click "Add":
+1. **UI** - Form submits, calls `mutation.mutate()`
+2. **Network** - POST request to `/api/rpc/todos/create`
+3. **Server** - `authProcedure` checks session, then `todosRouter.create` runs
+4. **Database** - `todosService.create()` inserts the todo
+5. **Response** - New todo returned to client
+6. **UI** - `invalidateQueries()` triggers refetch, list updates
 
 ## Why This Architecture?
 

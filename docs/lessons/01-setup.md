@@ -24,8 +24,8 @@ Docker Compose lets you define and run multiple containers with a single command
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url> fullstack-course
-cd fullstack-course
+git clone <repository-url> fullstack-walkthrough
+cd fullstack-walkthrough
 ```
 
 ### 2. Install Dependencies
@@ -73,6 +73,12 @@ cp .env.example .env
 Open `.env` in your editor. The defaults work for local development:
 
 ```bash
+# Node environment
+NODE_ENV=development
+
+# Base URL for the application
+BASE_URL=http://localhost:3000
+
 # Database (matches docker-compose.yml)
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/coursedb
 
@@ -96,12 +102,28 @@ Copy the output and paste it as your `AUTH_SECRET`.
 
 | Variable | Purpose |
 |----------|---------|
+| `NODE_ENV` | Environment mode (development/production) |
+| `BASE_URL` | Base URL for the application |
 | `DATABASE_URL` | Connection string for PostgreSQL |
 | `EMAIL_CONNECTION_URL` | SMTP server for sending emails |
 | `SYSTEM_EMAIL_FROM` | "From" address for system emails |
 | `AUTH_SECRET` | Secret key for signing auth tokens |
 
 > **Security:** Never commit your `.env` file! It's in `.gitignore` for a reason.
+
+### 7. Start the Dev Server
+
+Now let's verify everything works:
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser. You should see the home page.
+
+> **Note:** You may see some type errors in the terminal - that's expected! The starter code has gaps you'll fill in during the course.
+
+Press `Ctrl+C` to stop the server when you're done checking.
 
 ## Verify
 

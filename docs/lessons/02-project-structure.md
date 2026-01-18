@@ -17,7 +17,7 @@ All our application code lives in `src/`. This keeps the root directory clean fo
 ## Project Layout
 
 ```
-fullstack-course/
+fullstack-walkthrough/
 ├── public/                 # Static assets (images, favicon)
 ├── src/
 │   ├── app/                # Next.js App Router (pages)
@@ -49,11 +49,15 @@ Files in `public/` are accessible at the root URL:
 - `public/favicon.ico` → `http://localhost:3000/favicon.ico`
 - `public/images/logo.png` → `http://localhost:3000/images/logo.png`
 
-### Code Task: Change the Favicon
+### Code Task: Add a Favicon
 
-1. Find a favicon you like (or create one at [favicon.io](https://favicon.io/))
-2. Replace `public/favicon.ico` with your new favicon
-3. Restart the dev server and check your browser tab
+1. Create the `public/` directory if it doesn't exist:
+   ```bash
+   mkdir -p public
+   ```
+2. Find a favicon you like (or create one at [favicon.io](https://favicon.io/))
+3. Save it as `public/favicon.ico`
+4. Start the dev server (`pnpm dev`) and check your browser tab
 
 ## The `src/app/` Directory
 

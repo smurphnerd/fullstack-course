@@ -88,7 +88,6 @@ We recommend [VS Code](https://code.visualstudio.com/) with these extensions:
 - **ESLint** - Linting
 - **Prettier** - Code formatting
 - **Tailwind CSS IntelliSense** - CSS autocomplete
-- **TypeScript Vue Plugin (Volar)** - Better TypeScript support
 
 ### 5. Git
 

@@ -87,9 +87,11 @@ const authMiddleware = baseProcedure.middleware(
 
 After `authMiddleware`, `context.user` is available.
 
-## Creating a Router
+## Code Task: Create the Todos Router
 
-Open `src/server/endpoints/todosRouter.ts`:
+Open `src/server/endpoints/todosRouter.ts`. It's currently a stub with just an empty object.
+
+Replace it with the full implementation:
 
 ```typescript
 import { z } from "zod";
@@ -97,14 +99,14 @@ import { authProcedure } from "@/server/endpoints/procedure";
 import { TodoDto, CreateTodoDto } from "@/definitions/definitions";
 
 export const todosRouter = {
-  // List todos
+  // List todos for the current user
   list: authProcedure
     .output(z.array(TodoDto))
     .handler(async ({ context }) => {
       return await context.cradle.todosService.list(context.user.id);
     }),
 
-  // Create a todo
+  // Create a new todo
   create: authProcedure
     .input(CreateTodoDto)
     .output(TodoDto)
@@ -114,8 +116,30 @@ export const todosRouter = {
         input
       );
     }),
+
+  // Toggle todo completed status
+  toggle: authProcedure
+    .input(z.object({ id: z.string() }))
+    .output(TodoDto)
+    .handler(async ({ input, context }) => {
+      return await context.cradle.todosService.toggle(
+        context.user.id,
+        input.id
+      );
+    }),
+
+  // Delete a todo
+  delete: authProcedure
+    .input(z.object({ id: z.string() }))
+    .handler(async ({ input, context }) => {
+      await context.cradle.todosService.delete(context.user.id, input.id);
+    }),
 };
 ```
+
+> **Stuck?** Check `src_solution/server/endpoints/todosRouter.ts`
+
+## Understanding the Router
 
 ### Procedure Methods
 
@@ -197,13 +221,20 @@ Types flow automatically:
 - `data` is typed as `TodoDto[]`
 - `createMutation.mutate()` expects `CreateTodoDto`
 
-## Code Task: Trace the Types
+## Verifying Type Safety
 
-1. Hover over `orpc.todos.list.queryOptions()` in your editor
-2. See that it knows the return type is `TodoDto[]`
-3. This comes from the `.output(z.array(TodoDto))` on the server
+After implementing the router, you can verify type safety works:
 
-No code generation needed - oRPC infers types at compile time!
+1. Open any file and try to use the oRPC client:
+   ```typescript
+   import { useORPC } from "@/lib/orpc.client";
+
+   const orpc = useORPC();
+   // Hover over orpc.todos.list - TypeScript knows the return type!
+   ```
+
+2. The types flow from your `.output(z.array(TodoDto))` declaration
+3. No code generation needed - oRPC infers types at compile time!
 
 ## Error Handling
 

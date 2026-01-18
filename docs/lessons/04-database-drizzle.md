@@ -85,11 +85,14 @@ export const sessions = pgTable("sessions", {
 | `.unique()` | Must be unique |
 | `.references()` | Foreign key |
 
-## Code Task: Examine the Todos Table
+## Code Task: Create the Todos Table
 
-Look at the `todos` table in the schema:
+Open `src/server/database/schema.ts`. You'll see a TODO comment for adding the todos table.
+
+Add the following code after the `sessions` table:
 
 ```typescript
+// Todos table
 export const todos = pgTable("todos", {
   id: text()
     .primaryKey()
@@ -103,6 +106,18 @@ export const todos = pgTable("todos", {
 });
 ```
 
+Also add `todos` to the schema export at the bottom:
+
+```typescript
+export const schema = {
+  users,
+  verifications,
+  rateLimits,
+  sessions,
+  todos,  // Add this line
+};
+```
+
 This creates a table with:
 - `id` - Unique identifier (auto-generated UUID)
 - `title` - The todo text
@@ -111,6 +126,8 @@ This creates a table with:
 - `createdAt`, `updatedAt` - Timestamps (from `timestampFields`)
 
 The `references()` creates a foreign key. `onDelete: "cascade"` means if a user is deleted, their todos are deleted too.
+
+> **Stuck?** Check `src_solution/server/database/schema.ts` for the complete implementation.
 
 ## Database Migrations
 

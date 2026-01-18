@@ -68,21 +68,21 @@ This matches `/blog/anything` and you can access `anything` via params.
 
 ## The Layout File
 
-Open `src/app/layout.tsx`:
+Open `src/app/layout.tsx`. You'll see:
 
 ```tsx
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
-      <body>
+      <body className="flex min-h-screen flex-col">
         <ApiClientProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
+          {/* TODO: Add Header component */}
+          <main className="flex-1">{children}</main>
+          {/* TODO: Add Footer component */}
           <Toaster />
         </ApiClientProvider>
       </body>
@@ -91,9 +91,9 @@ export default function RootLayout({
 }
 ```
 
-This layout:
+Notice the TODOs - we'll add the Header and Footer later. For now, understand that this layout:
 1. Wraps the entire app with providers
-2. Adds a header and footer to every page
+2. Will eventually add a header and footer to every page
 3. Renders page content in `{children}`
 
 ## Code Task: Create an About Page
@@ -129,11 +129,15 @@ Open [http://localhost:3000/about](http://localhost:3000/about)
 
 You should see your about page with the header and footer from the layout.
 
-### Step 3: Add Navigation
+### Step 3: Add Navigation (Optional)
 
-Open `src/components/header.tsx` and add a link to the about page in the navigation.
+The header component (`src/components/header.tsx`) is currently a stub. We'll implement it fully in Lesson 8, but if you want to add a link now:
 
-> **Hint:** Look for where other links are and add a similar one for `/about`.
+1. Open `src/components/header.tsx`
+2. Find the `{/* TODO: Add navigation and auth buttons */}` comment
+3. Add a link: `<Link href="/about">About</Link>`
+
+> **Note:** The header implementation will be completed in Lesson 8 when we add authentication.
 
 ## API Routes
 

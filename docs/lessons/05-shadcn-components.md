@@ -190,10 +190,48 @@ cn("base-class", isActive && "active-class")
 
 ## Code Task: Explore Components
 
-1. Open the `/login` page in your browser
-2. Inspect the form elements
-3. Find the corresponding components in `src/components/ui/`
-4. Try changing a button's variant from `default` to `outline`
+1. Open `src/components/ui/button.tsx` and read through the code
+2. Notice the `buttonVariants` that define different styles
+3. Open `src/components/ui/input.tsx` and see how it extends the native input
+4. Create a test file `src/app/test/page.tsx` with various components:
+
+```tsx
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+export default function TestPage() {
+  return (
+    <div className="container mx-auto p-8 space-y-4">
+      <h1 className="text-2xl font-bold">Component Test</h1>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Button Variants</CardTitle>
+        </CardHeader>
+        <CardContent className="space-x-2">
+          <Button>Default</Button>
+          <Button variant="outline">Outline</Button>
+          <Button variant="destructive">Destructive</Button>
+          <Button variant="ghost">Ghost</Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Input</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Input placeholder="Type something..." />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+```
+
+5. Visit [http://localhost:3000/test](http://localhost:3000/test) to see the components
+6. Try changing button variants and see the differences
 
 ## Customizing Components
 
