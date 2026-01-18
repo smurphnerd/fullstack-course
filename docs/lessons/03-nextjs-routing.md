@@ -127,7 +127,7 @@ pnpm dev
 
 Open [http://localhost:3000/about](http://localhost:3000/about)
 
-You should see your about page with the header and footer from the layout.
+You should see your about page. The header and footer will be added in Lesson 8.
 
 ### Step 3: Add Navigation (Optional)
 
@@ -188,7 +188,7 @@ Test it by visiting [http://localhost:3000/nonexistent](http://localhost:3000/no
 
 - [ ] About page works at `/about`
 - [ ] 404 page shows for unknown routes
-- [ ] Header and footer appear on all pages
+- [ ] Layout wraps all pages (header/footer added in Lesson 8)
 
 ## Next
 
