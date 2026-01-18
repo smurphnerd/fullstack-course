@@ -24,8 +24,8 @@ Docker Compose lets you define and run multiple containers with a single command
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url> fullstack-walkthrough
-cd fullstack-walkthrough
+git clone <repository-url> fullstack-course
+cd fullstack-course
 ```
 
 ### 2. Install Dependencies

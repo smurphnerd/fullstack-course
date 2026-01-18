@@ -17,7 +17,7 @@ All our application code lives in `src/`. This keeps the root directory clean fo
 ## Project Layout
 
 ```
-fullstack-walkthrough/
+fullstack-course/
 ├── public/                 # Static assets (images, favicon)
 ├── src/
 │   ├── app/                # Next.js App Router (pages)
